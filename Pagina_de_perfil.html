@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil do Usuário</title>
+    <link rel="stylesheet" href="CSS_do_site.css">
+</head>
+<body id="bodyPaginaPerfil">
+
+    <div class="Barrasuperior">
+        <a href="Pagina_de_Produtos.html" class="OpcaoPerfil" >Produtos</a>
+        <a href="Pagina_de_login.html" class="Opcao_Sair">Sair</a>
+
+        
+        <span class= "Titulo_BarraSuperior">
+           <img src="Icone_Site.png" class="Icone_Barra_Superior"> Conectando Oportunidades </span>
+    </div> 
+
+    <div id="perfilUsuario">
+        <img id="fotoPerfil" src="" alt="Foto do Perfil">
+        <div id="infoPerfil">
+            <h1 id="nomeUsuario"></h1>
+            <p id="empresaUsuario"></p>
+            <p id="descricaoPerfilUsuario"></p>
+        </div>
+    </div>
+
+    <button id="btnAtualizarPerfil" onclick="abrirFormularioEdicaoPerfil()">Atualizar Perfil</button>
+    <button id="btnExcluirPerfil" onclick="excluirPerfil()">Excluir Perfil</button>
+
+    <form id="formularioEdicaoPerfil" style="display: none;">
+
+        <h2 id="titlefromedicao">Atualizar Dados: </h2>
+
+        <div id="posicaoitensedicao">
+
+        <label for="edicaoempresa">Empresa:</label>
+        <input id="edicaoempresa" name="novaEmpresa"></input><br><br>
+    
+        <label for="edicaodescricao">Descrição:</label>
+        <input  id="edicaodescricao" name="novaDescricao"></input ><br><br>
+    
+        <label for="edicaofoto">Foto Do Perfil:</label>
+        <input id="edicaofoto" name="novafoto"></input ><br><br>
+    
+        <!-- Adicione outros campos do perfil que desejar -->
+    
+        <button id="botao1" type="button" onclick=atualizarPerfil()>Salvar</button>
+        <button id="botao2" type="button" onclick="cancelarEdicaoPerfil()">Cancelar</button>
+    </form>
+        </div>
+
+    <script src="Script_Do_Site.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inserir Produto</title>
+</head>
+<body>
+    <h1>Inserir Novo Produto</h1>
+
+    <button type="button" onclick="carregarListaProdutos()">Atualizar</button>
+    <form id="formInserirProduto">
+        <label for="descricao">Descrição:</label>
+        <input type="text" id="descricao" name="descricao" required>
+
+        <label for="image">Imagem URL:</label>
+        <input type="text" id="image" name="image" required>
+
+        <label for="valor">Valor:</label>
+        <input type="number" step="0.01" id="valor" name="valor" required>
+
+        <label for="produto">Nome do Produto:</label>
+        <input type="text" id="produto" name="produto" required>
+
+        <button type="button" onclick="inserirProduto()">Inserir Produto</button>
+    </form>
+    <h2>Lista de Produtos</h2>
+    <ul id="listaProdutos"></ul>
+
+    <form id="formularioEdicao" style="display: none;">
+        <input type="hidden" id="edicaoId">
+        <label for="edicaoDescricao">Descrição:</label>
+        <input type="text" id="edicaoDescricao" name="edicaoDescricao" required>
+    
+        <label for="edicaoImage">Imagem URL:</label>
+        <input type="text" id="edicaoImage" name="edicaoImage" required>
+    
+        <label for="edicaoValor">Valor:</label>
+        <input type="number" step="0.01" id="edicaoValor" name="edicaoValor" required>
+    
+        <label for="edicaoProduto">Nome do Produto:</label>
+        <input type="text" id="edicaoProduto" name="edicaoProduto" required>
+    
+        <button type="button" onclick="atualizarProduto()">Atualizar Item</button>
+    </form>
+
+
+    <script>
+function validarLogin() {
+
+// Obtendo credenciais
+var email = document.getElementById("emailInput").value;
+var senha = document.getElementById("passwordInput").value;
+
+// Verificar se o login e senha estão corretos 
+if (email == "usuario@teste.com" && senha == "senhateste") {
+
+    // Se estiverem corretos, navegar para a próxima tela 
+    alert("Login bem-sucedido! Redirecionando para a próxima tela.");
+    // redirecionar para a próxima tela.
+    window.location.href = "Pagina_de_Produtos.html";
+
+} else {
+    // Se estiverem incorretos, mostrar mensagem de erro
+    alert("Login ou senha incorretos. Tente novamente.");
+}
+}
+
+//------------------------------------------
+
+
+async function obterListaProdutos() {
+const response = await fetch('http://localhost:3000/api/produtos');
+const data = await response.json();
+return data.result;
+}
+
+async function exibirListaProdutos() {
+const listaProdutos = await obterListaProdutos();
+const listaProdutosElement = document.getElementById('listaProdutos');
+listaProdutosElement.innerHTML = '';
+
+listaProdutos.forEach(produto => {
+const li = document.createElement('li');
+
+// Adiciona a imagem como uma tag <img>
+const img = document.createElement('img');
+img.src = produto.Image;
+img.alt = `Imagem de ${produto.Descricao}`;
+li.appendChild(img);
+
+// Adiciona outras informações do produto
+const descricaoP = document.createElement('p');
+descricaoP.textContent = `Descrição: ${produto.Descricao}, Valor: ${produto.Valor}, Produto: ${produto.Produto}`;
+li.appendChild(descricaoP);
+
+// Botão Excluir
+const excluirDiv = document.createElement('div');
+const btnExcluir = document.createElement('button');
+btnExcluir.textContent = 'Excluir';
+btnExcluir.addEventListener('click', () => excluirProduto(produto.Id));
+excluirDiv.appendChild(btnExcluir);
+li.appendChild(excluirDiv);
+
+// Botão Editar
+const editarDiv = document.createElement('div');
+const editarButton = document.createElement('button');
+editarButton.textContent = 'Editar';
+editarButton.onclick = () => abrirFormularioEdicao(produto.Id, produto.Descricao, produto.Image, produto.Valor, produto.Produto);
+editarDiv.appendChild(editarButton);
+li.appendChild(editarDiv);
+
+listaProdutosElement.appendChild(li);
+});
+}
+
+async function excluirProduto(produtoId) {
+    // Exibe um aviso de confirmação
+    const confirmacao = confirm("Tem certeza que deseja excluir este item?");
+    
+    if (confirmacao) {
+        try {
+            const response = await fetch(`http://localhost:3000/api/Produto/${produtoId}`, {
+                method: 'DELETE'
+            });
+
+            const data = await response.json();
+            alert(data.error || data.result.message);
+
+            // Recarrega a lista de produtos após a exclusão
+            await carregarListaProdutos();
+        } catch (error) {
+            console.error('Erro ao excluir produto:', error);
+            alert('Erro ao excluir produto. Verifique o console para mais detalhes.');
+        }
+    }
+}
+
+function abrirFormularioEdicao(id, descricao, image, valor, produto) {
+// Preencher os campos do formulário de edição com os dados do produto
+document.getElementById('edicaoId').value = id;
+document.getElementById('edicaoDescricao').value = descricao;
+document.getElementById('edicaoImage').value = image;
+document.getElementById('edicaoValor').value = valor;
+document.getElementById('edicaoProduto').value = produto;
+
+// Exibir o formulário de edição
+document.getElementById('formularioEdicao').style.display = 'block';
+}
+
+let produtoIdEmEdicao;
+
+async function atualizarProduto() {
+const id = document.getElementById('edicaoId').value;
+const descricao = document.getElementById('edicaoDescricao').value;
+const image = document.getElementById('edicaoImage').value;
+const valor = parseFloat(document.getElementById('edicaoValor').value);
+const produto = document.getElementById('edicaoProduto').value;
+
+try {
+const response = await fetch(`http://localhost:3000/api/Produto/${id}`, {
+method: 'PUT',
+headers: {
+    'Content-Type': 'application/json',
+},
+body: JSON.stringify({
+    Descricao: descricao,
+    Image: image,
+    Valor: valor,
+    Produto: produto,
+}),
+});
+
+const data = await response.json();
+alert(data.error || 'Produto atualizado com sucesso');
+
+// Após atualizar, recarrega a lista de produtos
+await carregarListaProdutos();
+
+// Esconde o formulário de edição
+document.getElementById('formularioEdicao').style.display = 'none';
+} catch (error) {
+console.error('Erro ao atualizar produto:', error);
+alert('Erro ao atualizar produto. Verifique o console para mais detalhes.');
+}
+}
+
+async function carregarListaProdutos() {
+await exibirListaProdutos();
+}
+
+document.addEventListener('DOMContentLoaded', carregarListaProdutos);
+
+
+
+//--------------------------------------------------------------------------------------------
+
+
+async function inserirProduto() {
+const descricao = document.getElementById('descricao').value;
+const image = document.getElementById('image').value;
+const valor = parseFloat(document.getElementById('valor').value);
+const produto = document.getElementById('produto').value;
+
+try {
+    const response = await fetch('http://localhost:3000/api/Produto', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            Descricao: descricao,
+            Image: image,
+            Valor: valor,
+            Produto: produto
+        }),
+    });
+
+    const data = await response.json();
+    alert(data.error || 'Produto inserido com sucesso');
+    
+    await carregarListaProdutos();
+} catch (error) {
+    console.error('Erro ao inserir produto:', error);
+    alert('Erro ao inserir produto. Verifique o console para mais detalhes.');
+}
+}
+    </script>
+</body>
+</html>
